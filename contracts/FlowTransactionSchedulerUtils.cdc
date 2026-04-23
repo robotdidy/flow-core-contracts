@@ -236,8 +236,9 @@ access(all) contract FlowTransactionSchedulerUtils {
             // Store the handler capability in the handlers dictionary for later retrieval
             if self.handlerInfos[handlerTypeIdentifier] != nil {
                 let handlers = &self.handlerInfos[handlerTypeIdentifier]! as auth(Mutate) &{UInt64: HandlerInfo}
-                if let handlerInfo = handlers[handlerUUID] {
+                if let handlerInfo = handlers.remove(key: handlerUUID) {
                     handlerInfo.addTransactionID(id: id)
+                    handlers.insert(key: handlerUUID, handlerInfo)
                 } else {
                     let handlerInfo = HandlerInfo(typeIdentifier: handlerTypeIdentifier, capability: handlerCap)
                     handlerInfo.addTransactionID(id: id)
@@ -306,8 +307,9 @@ access(all) contract FlowTransactionSchedulerUtils {
             if let handlerUUID = self.handlerUUIDsByTransactionID.remove(key: id) {
                 // Remove the transaction ID from the handler info array
                 let handlers = &self.handlerInfos[handlerTypeIdentifier]! as auth(Mutate) &{UInt64: HandlerInfo}
-                if let handlerInfo = handlers[handlerUUID] {
+                if let handlerInfo = handlers.remove(key: handlerUUID) {
                     handlerInfo.removeTransactionID(id: id)
+                    handlers.insert(key: handlerUUID, handlerInfo)
                 }
             }
         }
